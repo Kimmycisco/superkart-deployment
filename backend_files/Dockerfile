@@ -1,16 +1,16 @@
 FROM python:3.11-slim
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the app, the model and the dependencies file into the container
-COPY . .
-
-# Install the dependencies
+# Install required Python libraries
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# The API listens on port 7860
+# Copy the Flask application and trained model
+COPY app.py superkart_model.joblib ./
+
+# Expose the backend API port
 EXPOSE 7860
 
-# Start the Flask app with gunicorn
-CMD ["gunicorn", "-w", "1", "-b", "0.0.0.0:7860", "app:superkart_api"]
+# Start the Flask application using Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:7860", "--workers", "1", "--timeout", "120", "app:superkart_api"]
